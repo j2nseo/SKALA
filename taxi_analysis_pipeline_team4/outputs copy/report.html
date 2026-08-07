@@ -1,0 +1,116 @@
+
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NYC Yellow Taxi 요금 예측 분석 리포트</title>
+  <style>
+    :root { --ink:#172033; --muted:#667085; --line:#e4e7ec; --accent:#2563eb; }
+    body { margin:0; background:#f7f9fc; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1080px; margin:40px auto; padding:0 20px 60px; }
+    h1 { margin-bottom:6px; } h2 { margin-top:36px; }
+    .muted { color:var(--muted); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; }
+    .card, section { background:white; border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 2px 8px #1018280a; }
+    .card strong { display:block; margin-top:8px; font-size:1.45rem; color:var(--accent); }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; }
+    th, td { padding:10px; border-bottom:1px solid var(--line); text-align:right; }
+    th:first-child, td:first-child { text-align:left; }
+    .scroll { overflow-x:auto; }
+    a { color:var(--accent); }
+    img { width:100%; height:auto; border-radius:8px; }
+  </style>
+</head>
+<body><main>
+  <h1>NYC Yellow Taxi 요금 예측 분석 리포트</h1>
+  <p class="muted">Jinja2 자동 생성 · 2026-08-07 16:28:21</p>
+
+  <div class="cards">
+    <div class="card">Train 행 수<strong>2,337,766</strong></div>
+    <div class="card">Test 행 수<strong>1,140,129</strong></div>
+    <div class="card">피처 수<strong>29</strong></div>
+    <div class="card">최적 트리 수<strong>3,953</strong></div>
+  </div>
+
+  <section><h2>원본 데이터 로딩 비교</h2>
+    <p><a href="https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2026-05.parquet">NYC TLC 원본 Parquet</a>를 두 라이브러리로 각각 전체 로딩해 결과를 검증했습니다.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>항목</th><th>Pandas 2.3.3</th><th>Polars 1.43.2</th></tr></thead>
+      <tbody>
+        <tr><td>로딩 시간(초)</td><td>0.2862</td><td>0.0637</td></tr>
+        <tr><td>행 수</td><td>4,090,836</td><td>4,090,836</td></tr>
+        <tr><td>열 수</td><td>20</td><td>20</td></tr>
+        <tr><td>메모리 추정(MB)</td><td>741.48</td><td>550.13</td></tr>
+        <tr><td>total_amount 합계</td><td>124709721.43</td><td>124709721.43</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>Polars</strong>가 약 <strong>4.49배</strong> 빨랐으며, 행·열·컬럼·합계·기간 비교 결과는 <strong>모두 일치</strong>했습니다.</p>
+  </section>
+
+  <section><h2>모델 성능</h2><div class="scroll"><table>
+    <thead><tr><th>지표</th><th>베이스라인</th><th>최종 모델</th></tr></thead>
+    <tbody><tr>
+      <td>MAE</td><td>10.4951</td><td>2.6730</td>
+    </tr><tr>
+      <td>RMSE</td><td>16.2922</td><td>5.0046</td>
+    </tr><tr>
+      <td>R2</td><td>-0.0012</td><td>0.9055</td>
+    </tr><tr>
+      <td>MAPE_percent</td><td>49.9389</td><td>11.2842</td>
+    </tr><tr>
+      <td>p90_absolute_error</td><td>15.8018</td><td>6.0874</td>
+    </tr><tr>
+      <td>within_5_dollars_percent</td><td>28.1835</td><td>85.9385</td>
+    </tr></tbody>
+  </table></div></section>
+
+  <section><h2>변수 중요도 Top 15</h2><div class="scroll"><table>
+    <thead><tr><th>변수</th><th>Gain</th><th>비중(%)</th><th>그룹</th></tr></thead>
+    <tbody><tr><td>expected_fare_tow</td><td>564.6725463867188</td><td>32.43</td><td>타깃인코딩</td></tr><tr><td>rc_route_fare</td><td>266.8794860839844</td><td>15.33</td><td>타깃인코딩</td></tr><tr><td>RatecodeID</td><td>232.37440490722656</td><td>13.35</td><td>원본</td></tr><tr><td>expected_fare_med</td><td>136.41009521484375</td><td>7.83</td><td>타깃인코딩</td></tr><tr><td>same_zone</td><td>55.00164031982422</td><td>3.16</td><td>플래그</td></tr><tr><td>is_rush_hour</td><td>42.51136016845703</td><td>2.44</td><td>플래그</td></tr><tr><td>rc_tow_rate</td><td>37.19499206542969</td><td>2.14</td><td>타깃인코딩</td></tr><tr><td>VendorID</td><td>33.00495529174805</td><td>1.9</td><td>원본</td></tr><tr><td>pickup_airport</td><td>31.96152687072754</td><td>1.84</td><td>플래그</td></tr><tr><td>is_weekend</td><td>27.232982635498047</td><td>1.56</td><td>플래그</td></tr><tr><td>trip_distance</td><td>26.886375427246097</td><td>1.54</td><td>원본</td></tr><tr><td>is_overnight</td><td>25.136587142944336</td><td>1.44</td><td>플래그</td></tr><tr><td>dropoff_log_count</td><td>20.917715072631836</td><td>1.2</td><td>빈도인코딩</td></tr><tr><td>expected_fare_rc</td><td>20.1732234954834</td><td>1.16</td><td>타깃인코딩</td></tr><tr><td>dropoff_airport</td><td>20.059598922729492</td><td>1.15</td><td>플래그</td></tr></tbody>
+  </table></div></section>
+
+  <section><h2>요금제별 오차</h2><div class="scroll"><table>
+    <thead><tr><th>ratecode</th><th>건수</th><th>MAE</th><th>평균요금</th><th>행비중%</th><th>상대오차%</th><th>총오차비중%</th></tr></thead>
+    <tbody><tr><td>0(flex fare)</td><td>282557</td><td>4.95</td><td>28.53</td><td>24.8</td><td>17.4</td><td>45.9</td></tr><tr><td>1(일반)</td><td>814729</td><td>1.8</td><td>19.46</td><td>71.5</td><td>9.2</td><td>48.0</td></tr><tr><td>2(JFK 정액)</td><td>29376</td><td>1.58</td><td>82.45</td><td>2.6</td><td>1.9</td><td>1.5</td></tr><tr><td>3(Newark)</td><td>3876</td><td>5.22</td><td>89.16</td><td>0.3</td><td>5.9</td><td>0.7</td></tr><tr><td>4(Nassau/Westchester)</td><td>2702</td><td>12.83</td><td>115.49</td><td>0.2</td><td>11.1</td><td>1.1</td></tr><tr><td>5(협상요금)</td><td>6889</td><td>12.01</td><td>80.94</td><td>0.6</td><td>14.8</td><td>2.7</td></tr></tbody>
+  </table></div></section>
+
+  <section><h2>시각화</h2>
+    
+      <figure><img src="visualization_processed_cell_11.png" alt="visualization_processed_cell_11.png"><figcaption>visualization_processed_cell_11.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_processed_cell_17.png" alt="visualization_processed_cell_17.png"><figcaption>visualization_processed_cell_17.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_processed_cell_19.png" alt="visualization_processed_cell_19.png"><figcaption>visualization_processed_cell_19.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_processed_cell_5.png" alt="visualization_processed_cell_5.png"><figcaption>visualization_processed_cell_5.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_processed_cell_7.png" alt="visualization_processed_cell_7.png"><figcaption>visualization_processed_cell_7.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_processed_cell_9.png" alt="visualization_processed_cell_9.png"><figcaption>visualization_processed_cell_9.png</figcaption></figure>
+      
+    
+      <p><a href="visualization_processed_plotly_1.html">인터랙티브 차트 열기 — visualization_processed_plotly_1.html</a></p>
+    
+      <p><a href="visualization_processed_plotly_2.html">인터랙티브 차트 열기 — visualization_processed_plotly_2.html</a></p>
+    
+      <figure><img src="visualization_raw_cell_10.png" alt="visualization_raw_cell_10.png"><figcaption>visualization_raw_cell_10.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_raw_cell_4.png" alt="visualization_raw_cell_4.png"><figcaption>visualization_raw_cell_4.png</figcaption></figure>
+      
+    
+      <figure><img src="visualization_raw_cell_6.png" alt="visualization_raw_cell_6.png"><figcaption>visualization_raw_cell_6.png</figcaption></figure>
+      
+    
+      <p><a href="visualization_raw_plotly_1.html">인터랙티브 차트 열기 — visualization_raw_plotly_1.html</a></p>
+    
+  </section>
+
+  <section><h2>산출물</h2><ul><li><a href="data_loading_comparison.json">data_loading_comparison.json</a></li><li><a href="error_by_ratecode.csv">error_by_ratecode.csv</a></li><li><a href="fare_model_pipeline.joblib">fare_model_pipeline.joblib</a></li><li><a href="feature_importance.csv">feature_importance.csv</a></li><li><a href="metrics.json">metrics.json</a></li><li><a href="report.html">report.html</a></li><li><a href="statistics.txt">statistics.txt</a></li><li><a href="test_predictions.csv.gz">test_predictions.csv.gz</a></li><li><a href="visualization_cell_11.png">visualization_cell_11.png</a></li><li><a href="visualization_cell_17.png">visualization_cell_17.png</a></li><li><a href="visualization_cell_19.png">visualization_cell_19.png</a></li><li><a href="visualization_cell_5.png">visualization_cell_5.png</a></li><li><a href="visualization_cell_7.png">visualization_cell_7.png</a></li><li><a href="visualization_cell_9.png">visualization_cell_9.png</a></li><li><a href="visualization_plotly_1.html">visualization_plotly_1.html</a></li><li><a href="visualization_plotly_2.html">visualization_plotly_2.html</a></li><li><a href="visualization_processed_cell_11.png">visualization_processed_cell_11.png</a></li><li><a href="visualization_processed_cell_17.png">visualization_processed_cell_17.png</a></li><li><a href="visualization_processed_cell_19.png">visualization_processed_cell_19.png</a></li><li><a href="visualization_processed_cell_5.png">visualization_processed_cell_5.png</a></li><li><a href="visualization_processed_cell_7.png">visualization_processed_cell_7.png</a></li><li><a href="visualization_processed_cell_9.png">visualization_processed_cell_9.png</a></li><li><a href="visualization_processed_plotly_1.html">visualization_processed_plotly_1.html</a></li><li><a href="visualization_processed_plotly_2.html">visualization_processed_plotly_2.html</a></li><li><a href="visualization_raw_cell_10.png">visualization_raw_cell_10.png</a></li><li><a href="visualization_raw_cell_4.png">visualization_raw_cell_4.png</a></li><li><a href="visualization_raw_cell_6.png">visualization_raw_cell_6.png</a></li><li><a href="visualization_raw_plotly_1.html">visualization_raw_plotly_1.html</a></li></ul></section>
+</main></body></html>

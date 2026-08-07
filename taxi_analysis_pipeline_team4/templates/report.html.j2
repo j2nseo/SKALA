@@ -1,0 +1,76 @@
+{# 모델 지표, 오차 분석, 변수 중요도와 차트를 묶는 Jinja2 HTML 템플릿 #}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <style>
+    :root { --ink:#172033; --muted:#667085; --line:#e4e7ec; --accent:#2563eb; }
+    body { margin:0; background:#f7f9fc; color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1080px; margin:40px auto; padding:0 20px 60px; }
+    h1 { margin-bottom:6px; } h2 { margin-top:36px; }
+    .muted { color:var(--muted); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; }
+    .card, section { background:white; border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 2px 8px #1018280a; }
+    .card strong { display:block; margin-top:8px; font-size:1.45rem; color:var(--accent); }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; }
+    th, td { padding:10px; border-bottom:1px solid var(--line); text-align:right; }
+    th:first-child, td:first-child { text-align:left; }
+    .scroll { overflow-x:auto; }
+    a { color:var(--accent); }
+    img { width:100%; height:auto; border-radius:8px; }
+  </style>
+</head>
+<body><main>
+  <h1>{{ title }}</h1>
+  <p class="muted">Jinja2 자동 생성 · {{ generated }}</p>
+
+  <div class="cards">
+    <div class="card">Train 행 수<strong>{{ "{:,}".format(metrics.train_rows) }}</strong></div>
+    <div class="card">Test 행 수<strong>{{ "{:,}".format(metrics.test_rows) }}</strong></div>
+    <div class="card">피처 수<strong>{{ metrics.n_features }}</strong></div>
+    <div class="card">최적 트리 수<strong>{{ "{:,}".format(metrics.best_trees) }}</strong></div>
+  </div>
+
+  <section><h2>원본 데이터 로딩 비교</h2>
+    <p><a href="{{ loading.source_url }}">NYC TLC 원본 Parquet</a>를 두 라이브러리로 각각 전체 로딩해 결과를 검증했습니다.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>항목</th><th>Pandas {{ loading.pandas.version }}</th><th>Polars {{ loading.polars.version }}</th></tr></thead>
+      <tbody>
+        <tr><td>로딩 시간(초)</td><td>{{ "%.4f"|format(loading.pandas.seconds) }}</td><td>{{ "%.4f"|format(loading.polars.seconds) }}</td></tr>
+        <tr><td>행 수</td><td>{{ "{:,}".format(loading.pandas.rows) }}</td><td>{{ "{:,}".format(loading.polars.rows) }}</td></tr>
+        <tr><td>열 수</td><td>{{ loading.pandas.columns }}</td><td>{{ loading.polars.columns }}</td></tr>
+        <tr><td>메모리 추정(MB)</td><td>{{ "%.2f"|format(loading.pandas.memory_mb) }}</td><td>{{ "%.2f"|format(loading.polars.memory_mb) }}</td></tr>
+        <tr><td>total_amount 합계</td><td>{{ loading.pandas.total_amount_sum }}</td><td>{{ loading.polars.total_amount_sum }}</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>{{ loading.comparison.faster_library }}</strong>가 약 <strong>{{ loading.comparison.speedup }}배</strong> 빨랐으며, 행·열·컬럼·합계·기간 비교 결과는 <strong>{{ "모두 일치" if loading.comparison.all_results_match else "불일치" }}</strong>했습니다.</p>
+  </section>
+
+  <section><h2>모델 성능</h2><div class="scroll"><table>
+    <thead><tr><th>지표</th><th>베이스라인</th><th>최종 모델</th></tr></thead>
+    <tbody>{% for key, value in metrics.model.items() %}<tr>
+      <td>{{ key }}</td><td>{{ "%.4f"|format(metrics.baseline[key]) }}</td><td>{{ "%.4f"|format(value) }}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div></section>
+
+  <section><h2>변수 중요도 Top 15</h2><div class="scroll"><table>
+    <thead><tr><th>변수</th><th>Gain</th><th>비중(%)</th><th>그룹</th></tr></thead>
+    <tbody>{% for row in importance %}<tr><td>{{ row.feature if row.feature is defined else row.name }}</td><td>{{ row.gain }}</td><td>{{ row.gain_pct }}</td><td>{{ row.group }}</td></tr>{% endfor %}</tbody>
+  </table></div></section>
+
+  <section><h2>요금제별 오차</h2><div class="scroll"><table>
+    {% if errors %}<thead><tr>{% for key in errors[0].keys() %}<th>{{ key }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for row in errors %}<tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody>{% endif %}
+  </table></div></section>
+
+  {% if visualizations %}<section><h2>시각화</h2>
+    {% for name in visualizations %}
+      {% if name.endswith('.png') %}<figure><img src="{{ name }}" alt="{{ name }}"><figcaption>{{ name }}</figcaption></figure>
+      {% else %}<p><a href="{{ name }}">인터랙티브 차트 열기 — {{ name }}</a></p>{% endif %}
+    {% endfor %}
+  </section>{% endif %}
+
+  <section><h2>산출물</h2><ul>{% for name in artifacts %}<li><a href="{{ name }}">{{ name }}</a></li>{% endfor %}</ul></section>
+</main></body></html>
