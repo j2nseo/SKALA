@@ -178,7 +178,7 @@ npm run build:production
 
 ## 배포
 
-- 배포 주소: 배포 완료 후 추가
+- 배포 주소: [https://weatherly-skala.vercel.app](https://weatherly-skala.vercel.app)
 - 배포 환경에는 `VITE_OPENWEATHER_API_KEY`를 별도로 등록해야 합니다.
 - SPA의 동적 경로를 직접 열어도 `index.html`로 연결되도록 Rewrite 설정이 필요합니다.
 
