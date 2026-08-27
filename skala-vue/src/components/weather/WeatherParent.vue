@@ -5,16 +5,14 @@ import BaseDashboardCard from './BaseDashboardCard.vue'
 import SearchBar from './SearchBar.vue'
 import WeatherCard from './WeatherCard.vue'
 
-// 검색창에 입력된 검색어
+// 검색과 카드 선택에 필요한 화면 상태
 const searchQuery = ref('')
 
-// 현재 선택한 도시
 const selectedCity = ref(null)
 
-// 화면 아래에 표시되는 안내 문구
 const statusMessage = ref('카드를 클릭하거나 검색해 보세요.')
 
-// 전체 도시 날씨 데이터
+// Mockup 단계에서 사용하는 도시 날씨 데이터
 const weatherList = ref([
   {
     id: 1,
@@ -45,7 +43,7 @@ const weatherList = ref([
   },
 ])
 
-// 검색어에 맞는 도시만 골라냅니다.
+// 입력된 도시명이 포함된 카드만 화면에 남긴다.
 const filteredWeatherList = computed(() => {
   const keyword = searchQuery.value.trim()
 
@@ -58,7 +56,7 @@ const filteredWeatherList = computed(() => {
   })
 })
 
-// SearchBar가 보낸 검색어를 받습니다.
+// 검색어 변경과 함께 안내 문구를 갱신한다.
 const handleUpdateQuery = (newQuery) => {
   searchQuery.value = newQuery
 
@@ -69,13 +67,13 @@ const handleUpdateQuery = (newQuery) => {
   }
 }
 
-// WeatherCard가 보낸 카드 선택 이벤트를 처리합니다.
+// 선택된 도시와 상태 문구를 함께 변경한다.
 const handleSelectCard = (weather) => {
   selectedCity.value = weather
   statusMessage.value = `${weather.city} 카드를 선택했습니다.`
 }
 
-// WeatherCard가 보낸 상세보기 이벤트를 처리합니다.
+// 상세보기 동작은 카드 선택과 알림 표시를 함께 처리한다.
 const handleClickDetail = (weather) => {
   selectedCity.value = weather
 
@@ -95,12 +93,10 @@ const handleClickDetail = (weather) => {
     <div class="weather-container">
       <h1>🌤️ 과제 3: 날씨 (컴포넌트)</h1>
 
-      <!-- 도시 검색 영역 -->
       <BaseDashboardCard icon="🔍" title="도시 검색 (한글 즉시 동기화)">
         <SearchBar :query="searchQuery" @update-query="handleUpdateQuery" />
       </BaseDashboardCard>
 
-      <!-- 지역별 날씨 목록 -->
       <BaseDashboardCard icon="🏙️" title="지역별 날씨 현황">
         <div v-if="filteredWeatherList.length > 0" class="weather-list">
           <WeatherCard
@@ -116,7 +112,6 @@ const handleClickDetail = (weather) => {
         <p v-else class="empty-message">검색 결과가 없습니다.</p>
       </BaseDashboardCard>
 
-      <!-- 현재 상태 안내 -->
       <div class="status-panel">
         {{ statusMessage }}
       </div>

@@ -1,5 +1,5 @@
 <script setup>
-// 부모 컴포넌트로부터 검색어를 받습니다.
+// 검색창에 표시할 검색어
 defineProps({
   query: {
     type: String,
@@ -7,10 +7,9 @@ defineProps({
   },
 })
 
-// 부모에게 보낼 이벤트를 등록합니다.
+// 입력값 변경을 전달하는 이벤트
 const emit = defineEmits(['update-query'])
 
-// 입력창의 값이 바뀔 때 실행됩니다.
 const handleInput = (event) => {
   emit('update-query', event.target.value)
 }

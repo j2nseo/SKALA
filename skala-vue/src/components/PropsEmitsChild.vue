@@ -1,5 +1,5 @@
 <script setup>
-// 부모 컴포넌트로부터 받을 데이터 정의
+// 상위 컴포넌트에서 전달하는 메시지
 defineProps({
   parentData: {
     type: String,
@@ -7,14 +7,14 @@ defineProps({
   },
 })
 
-// 부모 컴포넌트에 보낼 이벤트 정의
+// 메시지 갱신을 요청하는 사용자 이벤트
 const emit = defineEmits(['update-request'])
 
-// 버튼을 클릭하면 실행되는 함수
+// 버튼 클릭 시 새 메시지를 이벤트 데이터로 전달한다.
 const sendNotification = () => {
   const payload = 'Child에서 가공한 새로운 데이터'
 
-  // 부모에게 이벤트와 데이터를 함께 전달
+  // 이벤트 이름과 변경할 값을 함께 전달한다.
   emit('update-request', payload)
 }
 </script>

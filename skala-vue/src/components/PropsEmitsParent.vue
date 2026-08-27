@@ -2,12 +2,12 @@
 import { ref } from 'vue'
 import PropsEmitsChild from './PropsEmitsChild.vue'
 
-// 부모 컴포넌트가 소유한 반응형 데이터
+// 상위 컴포넌트에서 관리하는 메시지 상태
 const message = ref('Parent 초기 메시지')
 
-// 자식의 update-request 이벤트가 발생하면 실행되는 함수
+// 하위 컴포넌트의 갱신 요청을 메시지 상태에 반영한다.
 const handleUpdateRequest = (newValue) => {
-  // 자식이 보낸 데이터를 부모의 message에 저장
+  // 이벤트와 함께 전달된 값을 저장한다.
   message.value = newValue
 }
 </script>

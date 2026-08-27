@@ -1,5 +1,5 @@
 <script setup>
-// 부모가 카드 제목과 아이콘을 전달합니다.
+// 공통 카드에 표시할 제목과 아이콘
 defineProps({
   icon: {
     type: String,
@@ -21,7 +21,6 @@ defineProps({
     </h2>
 
     <div class="dashboard-content">
-      <!-- 부모가 넣은 컴포넌트가 이 자리에 표시됩니다. -->
       <slot />
     </div>
   </section>

@@ -1,5 +1,5 @@
 <script setup>
-// 부모로부터 날씨 객체와 선택 여부를 받습니다.
+// 카드에 표시할 날씨 데이터와 선택 상태
 defineProps({
   weather: {
     type: Object,
@@ -12,7 +12,7 @@ defineProps({
   },
 })
 
-// 부모에게 보낼 이벤트를 등록합니다.
+// 카드 선택과 상세보기를 구분한 사용자 이벤트
 const emit = defineEmits(['select-card', 'click-detail'])
 </script>
 
